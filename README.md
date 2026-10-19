@@ -15,9 +15,9 @@
 
 ## 실행
 
-**Windows 첫 실행:** ZIP 압축을 풀고 Docker Desktop을 실행한 다음 `START-WINDOWS.cmd`를 더블클릭하세요. 설정 생성과 설치 후 메모장에 로그인 정보가, 브라우저에 검수 화면이 열리도록 구성했습니다. Telegram·플랫폼 계정은 그 다음에 연결합니다. [Windows 안내](docs/windows-quickstart.md).
+**Windows 첫 실행:** ZIP 압축을 풀고 `START-WINDOWS.cmd`를 더블클릭하세요. **Docker 설치가 필요 없습니다.** 필요한 Python과 영상 도구를 프로그램 폴더에 준비한 뒤 검수 화면을 엽니다. Telegram·플랫폼 계정은 다음 단계에 연결합니다. [Windows 안내](docs/windows-quickstart.md).
 
-Python 3.12+, FFmpeg/FFprobe, 한글 Noto 폰트가 필요합니다. 현재 클라우드 환경에는 준비되어 있습니다. Windows는 Docker Desktop의 Linux 컨테이너 또는 WSL2를 사용합니다. PC에서의 재현 가능한 설치는 [운영 안내](docs/operations.md)에 있습니다.
+Python 3.12+, FFmpeg/FFprobe, 한글 Noto 폰트가 필요합니다. 현재 클라우드 환경에는 준비되어 있습니다. Windows 10/11 64비트는 전용 실행 파일이 필요한 도구를 준비하며 Docker·WSL2를 사용하지 않습니다. PC 설치는 [Windows 안내](docs/windows-quickstart.md)에, 선택적 서버/Docker 운영은 [운영 안내](docs/operations.md)에 있습니다.
 
 ```bash
 cd /workspace/Daily-Crypto-News-Bot

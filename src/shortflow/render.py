@@ -5,6 +5,7 @@ from __future__ import annotations
 from datetime import date
 import json
 import math
+import os
 from pathlib import Path
 import shutil
 import subprocess
@@ -44,10 +45,12 @@ def _audio_duration(audio_path: Path) -> float:
 
 
 def _find_font(font_path: str | None) -> str:
-    for path in (font_path,) if font_path else FONT_CANDIDATES:
+    windows_fonts = Path(os.environ.get("WINDIR", "C:/Windows")) / "Fonts"
+    candidates = (*FONT_CANDIDATES, windows_fonts / "malgun.ttf", windows_fonts / "malgunbd.ttf")
+    for path in (font_path,) if font_path else candidates:
         if path and Path(path).is_file():
             return str(path)
-    raise RuntimeError("Korean font not found; install fonts-noto-cjk or set font_path")
+    raise RuntimeError("Korean font not found; install fonts-noto-cjk, use Windows Malgun Gothic, or set FONT_PATH")
 
 
 def _font(path: str, size: int) -> ImageFont.FreeTypeFont:

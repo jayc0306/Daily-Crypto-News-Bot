@@ -1,8 +1,10 @@
 # PC 설치와 운영
 
+Windows PC의 기본 실행은 **Docker가 필요 없는 `START-WINDOWS.cmd`**입니다. [Windows 시작 안내](windows-quickstart.md)를 먼저 따르세요. 아래 Docker 절차는 선택적 서버/컨테이너 운영용입니다.
+
 계속 켜둘 PC를 사용하므로 서버 대여 없이 시작합니다. Windows/macOS는 Docker Desktop의 **Linux 컨테이너**, Linux는 Docker Engine+Compose를 권합니다. Windows의 절전/최대 절전, macOS의 잠자기, Docker 종료 중에는 작업이 실행되지 않습니다. 자동 로그인이나 운영체제 보안 설정을 임의로 변경하지 않습니다.
 
-## PC에서 시작
+## Docker 운영을 선택한 경우
 
 저장소 루트에 `.env.example`을 복사해 `.env`를 만듭니다. `DASHBOARD_PASSWORD`는 12자 이상의 무작위 값, `MEDIA_SIGNING_KEY`는 별도의 긴 무작위 값으로 설정하고 Git에 넣지 않습니다. Python 실행 환경이 있으면 `shortflow init`이 안전하게 생성할 수 있습니다.
 

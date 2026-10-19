@@ -8,7 +8,7 @@ import subprocess
 import httpx
 import pytest
 
-from shortflow import content
+from shortflow import content, render
 from shortflow.render import render_video
 
 
@@ -158,6 +158,30 @@ def test_demo_is_explicitly_synthetic_and_has_no_real_claims():
     assert draft["sources"] == []
     assert "게시 금지" in draft["title"]
     assert "합성 샘플" in draft["caption"]
+
+
+@pytest.mark.parametrize("font_name", ["malgun.ttf", "malgunbd.ttf"])
+def test_font_discovery_uses_windows_korean_font(tmp_path, monkeypatch, font_name):
+    windows_dir = tmp_path / "Windows"
+    fonts = windows_dir / "Fonts"
+    fonts.mkdir(parents=True)
+    font = fonts / font_name
+    font.touch()
+    monkeypatch.setenv("WINDIR", str(windows_dir))
+    monkeypatch.setattr(render, "FONT_CANDIDATES", ())
+    assert render._find_font(None) == str(font)
+
+
+def test_explicit_font_path_remains_authoritative(tmp_path, monkeypatch):
+    windows_fonts = tmp_path / "Windows" / "Fonts"
+    windows_fonts.mkdir(parents=True)
+    (windows_fonts / "malgun.ttf").touch()
+    monkeypatch.setenv("WINDIR", str(windows_fonts.parent))
+    custom = tmp_path / "custom.ttf"
+    custom.touch()
+    assert render._find_font(str(custom)) == str(custom)
+    with pytest.raises(RuntimeError, match="FONT_PATH"):
+        render._find_font(str(tmp_path / "missing.ttf"))
 
 
 @pytest.mark.skipif(not shutil.which("ffmpeg") or not shutil.which("ffprobe"), reason="ffmpeg and ffprobe are required")

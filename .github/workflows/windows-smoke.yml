@@ -1,0 +1,32 @@
+name: Native Windows smoke
+
+on:
+  push:
+    branches: [codex/shortflow-windows]
+    paths-ignore: ["downloads/**", "docs/**", "README.md"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  native-windows:
+    runs-on: windows-latest
+    timeout-minutes: 15
+    env:
+      SHORTFLOW_NO_PAUSE: "1"
+      PYTHONUTF8: "1"
+      PYTHONIOENCODING: utf-8
+      SCHEDULE_ENABLED: "false"
+      LLM_ENABLED: "false"
+      TTS_ENABLED: "false"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Install through the Windows launcher
+        shell: cmd
+        run: call START-WINDOWS.cmd --setup-only
+      - name: Render and serve a local sample on Windows
+        shell: cmd
+        run: .venv\Scripts\python.exe tools\windows_smoke.py

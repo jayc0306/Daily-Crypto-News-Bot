@@ -1,57 +1,33 @@
-# Windows PC에서 시작하기
+# Windows에서 처음 실행하기
 
-## 처음에는 이것만 하세요
+**Docker Desktop을 설치하지 않아도 됩니다.** Windows 10/11 64비트용 실행 방식입니다.
 
-1. 시작 ZIP을 PC에 내려받아 **압축을 풉니다**.
-2. [Docker Desktop](https://www.docker.com/products/docker-desktop/)을 설치하고 실행합니다. Linux 컨테이너를 사용하며, 설치 중 재부팅 안내가 있으면 따릅니다.
-3. 압축 푼 폴더의 **`START-WINDOWS.cmd`를 더블클릭**합니다. 최초 설치는 몇 분 걸릴 수 있습니다. Docker가 꺼져 있으면 켜고 다시 실행합니다.
-4. 자동으로 열리는 메모장의 **사용자 이름·암호**를 브라우저 로그인 창에 입력합니다.
-5. 화면에서 **샘플 미리보기**를 눌러 영상이 만들어지는지 확인합니다.
+1. 최신 시작 ZIP을 다운로드하고 **모두 압축 풀기**를 합니다. ZIP 안에서 바로 실행하지 않습니다.
+2. 풀린 `shortflow` 폴더의 **`START-WINDOWS.cmd`를 더블클릭**합니다.
+3. 첫 실행은 필요한 도구를 받으므로 몇 분 걸릴 수 있습니다. 진행 중인 검은 창은 열어 둡니다.
+4. 메모장과 브라우저가 열리면 **메모장의 아이디·암호**로 로그인합니다.
+5. **샘플 미리보기**를 눌러 영상 제작을 확인합니다.
 
-여기까지는 PC 실행과 미리보기입니다. Telegram 봇과 YouTube/Instagram 계정은 그 다음에 연결합니다. 이름·소개 문구는 [채널 운영안](channel-plan.md)에 있습니다. 로그인 메모와 `.env`는 공유하지 마세요.
+다음 실행도 같은 파일을 더블클릭합니다. 프로그램 창을 닫으면 서비스가 멈추므로 운영 중에는 PC와 실행 창을 켜 둡니다. 종료는 창에서 Ctrl+C로 합니다. Docker·가상화 설정·시스템 Python 설치가 필요하지 않습니다.
 
-실행 파일은 기존 `.env`를 보존하고 처음에만 무작위 암호를 만듭니다. 기본 설정 생성 도구는 테스트했으며 Windows에서 직접 더블클릭 실행한 결과는 아직 확인하지 못했습니다. Docker 컨테이너와 앱은 Linux 환경에서 검증했습니다.
+## 처음 실행할 때 준비하는 것
 
-## 수동 실행과 계정 연결
+프로그램 폴더의 `.local/`에 체크섬을 확인한 공식 uv, uv가 관리하는 Python 3.12, 공식 다운로드 경로의 체크섬을 확인한 FFmpeg/FFprobe를 준비합니다. `.venv/`에는 고정된 의존성을 설치합니다. Windows 기본 맑은 고딕과 Windows용 시간대 데이터를 사용합니다. 관리자 권한을 요구하거나 PowerShell 실행 정책·TLS·체크섬 검사를 끄지 않습니다.
 
-### 실행 창에서 멈췄을 때
+인터넷 연결과 도구를 저장할 여유 공간이 필요합니다. FFmpeg 압축 파일은 검증 시 약 115MB였고 설치 파일은 프로그램 폴더 안에 보관합니다. Windows ARM64에서는 x64 FFmpeg 실행을 지원하는 환경이 필요합니다.
 
-이전 버전의 “Checking Docker Desktop → Install Docker Desktop → 계속하려면 아무 키”는 Docker 설치·엔진 실행·Compose 확인 중 하나가 실패했다는 뜻입니다. 아무 키는 창을 닫는 기능이었습니다. 이것만으로 정확한 원인은 확정할 수 없습니다.
+기존 `.env`는 덮어쓰지 않습니다. 처음에만 무작위 대시보드 암호를 만들며 `.local/dashboard-login.txt`에 로컬 로그인 안내를 보관합니다. `.env`와 로그인 메모를 채팅에 보내거나 Git에 올리지 않습니다.
 
-새 실행 파일은 압축 미해제, Docker 미설치, 엔진 미실행, Windows 컨테이너 모드, Compose 누락, 이미지 다운로드, 설정 생성, 앱 시작 실패를 한글로 구분합니다. 설치된 Docker Desktop은 자동 시작을 시도하며 기존 `.env`를 보존합니다. Docker가 없으면 공식 설치 페이지를 엽니다. 실패 시 대괄호로 표시된 단계와 바로 위 오류 문구를 확인합니다.
+## 오류가 나면
 
-먼저 시작 메뉴에서 Docker Desktop이 검색되는지 확인하세요. 없으면 공식 Windows 설치가 필요합니다. 이미 있다면 실행하여 엔진 준비를 기다립니다. WSL·가상화 오류가 표시되면 그 메시지를 기준으로 해결합니다. 원인 확인 없이 `.env`나 데이터 볼륨을 삭제하지 마세요.
+화면에 표시된 실패 단계와 오류 문구를 알려주세요. 도구 다운로드, 체크섬, Python 설치, FFmpeg 준비, 설정 생성, 앱 시작을 구분해서 확인합니다. Enter는 오류 창을 닫는 기능입니다. 원인 확인 없이 `.env`나 데이터 폴더를 지우지 않습니다.
 
-사용자의 구성: 계속 켜둘 Windows PC, 기존 YouTube/TikTok/Instagram 계정, Instagram 비즈니스 계정, NAVER 미개설. 채널 표시 이름과 소개는 [운영안](channel-plan.md)의 문구로 소유자가 변경합니다. 계정 변경이나 외부 게시를 대신 실행한 상태는 아닙니다.
+## 그 다음: Telegram과 계정 연결
 
-1. [Docker Desktop for Windows](https://docs.docker.com/desktop/setup/install/windows-install/)를 설치합니다. 공식 안내에 따라 WSL2와 Linux 컨테이너를 사용합니다. Windows/macOS에서 직접 검증한 것은 아니며, 같은 Docker 이미지는 이 Linux 클라우드에서 빌드·실행 검증했습니다.
-2. 시작 ZIP을 풀고 해당 폴더에서 PowerShell을 엽니다. `docker version`과 `docker compose version`이 정상인지 확인합니다.
-3. 다음 코드는 기존 `.env`를 보존하고, 없을 때만 로컬 암호를 무작위로 만듭니다. 비밀 값은 터미널에 출력하지 않습니다.
+여기까지는 PC 실행과 영상 미리보기입니다. Telegram 봇과 YouTube/Instagram 권한을 연결한 상태는 아닙니다. 계정 이름과 소개 초안은 [채널 운영안](channel-plan.md)에 있습니다.
 
-```powershell
-if (!(Test-Path .env)) {
-    $rng = [Security.Cryptography.RandomNumberGenerator]::Create()
-    $passwordBytes = New-Object byte[] 24
-    $signingBytes = New-Object byte[] 32
-    $rng.GetBytes($passwordBytes)
-    $rng.GetBytes($signingBytes)
-    $config = [IO.File]::ReadAllText((Join-Path $PWD '.env.example'))
-    $config = $config -replace '(?m)^DASHBOARD_PASSWORD=\r?$', ('DASHBOARD_PASSWORD=' + [Convert]::ToBase64String($passwordBytes))
-    $config = $config -replace '(?m)^MEDIA_SIGNING_KEY=\r?$', ('MEDIA_SIGNING_KEY=' + [Convert]::ToBase64String($signingBytes))
-    [IO.File]::WriteAllText((Join-Path $PWD '.env'), $config, [Text.UTF8Encoding]::new($false))
-    $rng.Dispose()
-}
-docker compose up -d --build
-docker compose exec shortflow python -m shortflow doctor
-```
+Telegram은 본인이 만든 봇과 개인 대화를 시작한 뒤 봇 토큰·본인 chat ID를 안전한 `.env`에 연결합니다. 유튜브는 OAuth 동의, 인스타 비즈니스 계정은 Instagram Login 권한과 공개 HTTPS 영상 주소가 추가로 필요합니다. 연결 전에도 영상·게시 문구를 만들어 직접 업로드할 수 있습니다.
 
-4. 본인 PC 브라우저에서 로컬 8000 포트로 접속합니다. 사용자 이름은 `admin`, 암호는 `.env`의 `DASHBOARD_PASSWORD`입니다. `notepad .env`로 본인 PC에서만 확인합니다. 파일을 채팅에 첨부하거나 Git에 올리지 않습니다.
-5. 먼저 **샘플 미리보기**로 제작 화면을 확인하고 **오늘 콘텐츠 만들기**로 실제 자료를 수집합니다. 이 단계에서는 플랫폼 계정에 게시하지 않습니다.
-6. `@BotFather`에서 Telegram 봇을 만들고 본인과 봇 사이에 개인 대화를 시작합니다. 봇 토큰·본인의 양수 개인 chat ID를 `.env`에 넣고 `docker compose up -d --force-recreate`로 적용합니다. 봇 토큰을 브라우저 URL이나 채팅에 붙여 넣지 않습니다.
-7. YouTube OAuth를 연결하고 비공개 게시부터 검증합니다. Instagram은 비즈니스 계정이므로 유형 조건은 충족하지만, Instagram Login 앱 권한과 공개 HTTPS 영상 주소가 별도로 필요합니다. 아직 준비하지 않았다면 릴스 직접 업로드 파일을 사용합니다.
+틱톡 개인/팀 내부 Direct Post 도구는 허용 용도에서 제외되며, 네이버 클립은 일반 공개 업로드 API를 확인하지 못했습니다. 두 플랫폼은 기본 수동 파일 전달입니다. 이 실행 변경으로 네 플랫폼의 동시 자동 게시가 완료되는 것은 아닙니다.
 
-텔레그램 검수 승인 후에만 자동 게시 가능한 플랫폼에 전송합니다. 틱톡은 개인/팀 전용 내부 Direct Post 도구가 허용되지 않아 기본 수동 패키지입니다. 네이버클립도 일반 공개 업로드 API를 확인하지 못해 계정 개설 후 직접 발행합니다. 네 곳 동시 자동 게시가 완료됐다고 표시하지 않습니다.
-
-PC 절전 중에는 매일 제작·봇 응답이 중단됩니다. PC와 Docker가 실행 중이어야 하며 재부팅 뒤 Docker 시작도 확인합니다. `restart: unless-stopped`는 Docker가 실행된 뒤 컨테이너 재시작에 적용됩니다. 클라우드에서 만든 데모·DB는 시작 ZIP에 복사하지 않으므로 PC에서는 새로 생성됩니다.
-
-무료 카드형 영상부터 시작하며 유료 AI는 기본 비활성입니다. 월 3만 원을 목표로 AI를 켜려면 별도 API 결제와 공급자 사용량 제한을 설정합니다. 앱 자체에 원화 결제 차단 기능은 없습니다.
+무료 카드형 영상으로 시작하고 AI 대본·음성은 선택 기능입니다. 월 3만 원 예산은 운영 목표이며 자동 청구 차단 기능은 없습니다.
