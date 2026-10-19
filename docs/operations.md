@@ -2,7 +2,7 @@
 
 Windows PC의 기본 실행은 **Docker가 필요 없는 `START-WINDOWS.cmd`**입니다. [Windows 시작 안내](windows-quickstart.md)를 먼저 따르세요. 아래 Docker 절차는 선택적 서버/컨테이너 운영용입니다.
 
-계속 켜둘 PC를 사용하므로 서버 대여 없이 시작합니다. Windows/macOS는 Docker Desktop의 **Linux 컨테이너**, Linux는 Docker Engine+Compose를 권합니다. Windows의 절전/최대 절전, macOS의 잠자기, Docker 종료 중에는 작업이 실행되지 않습니다. 자동 로그인이나 운영체제 보안 설정을 임의로 변경하지 않습니다.
+계속 켜둘 PC를 사용하므로 서버 대여 없이 시작합니다. Docker 운영을 선택하면 Windows/macOS는 Docker Desktop의 Linux 컨테이너, Linux는 Docker Engine+Compose를 사용합니다. Windows 기본 실행은 위 전용 안내를 따릅니다. Windows의 절전/최대 절전, macOS의 잠자기, Docker 종료 중에는 작업이 실행되지 않습니다. 자동 로그인이나 운영체제 보안 설정을 임의로 변경하지 않습니다.
 
 ## Docker 운영을 선택한 경우
 
