@@ -1,0 +1,20 @@
+services:
+  shortflow:
+    image: shortflow:local
+    build: .
+    env_file:
+      - ${SHORTFLOW_ENV_FILE:-.env}
+    environment:
+      SHORTFLOW_ROOT: /app
+      DATA_DIR: /app/data
+    volumes:
+      - shortflow-data:/app/data
+    ports:
+      - "127.0.0.1:8000:8000"
+    cpus: 2.0
+    mem_limit: 2g
+    restart: unless-stopped
+    stop_grace_period: 30s
+
+volumes:
+  shortflow-data:

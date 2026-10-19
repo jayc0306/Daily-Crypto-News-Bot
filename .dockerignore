@@ -1,0 +1,18 @@
+# Include only build inputs. Runtime credentials and generated files stay out.
+**
+!Dockerfile
+!.dockerignore
+!requirements.txt
+!pyproject.toml
+!.env.example
+!src/
+!src/**
+!config/
+!config/**
+!examples/
+!examples/**
+**/__pycache__/
+**/*.pyc
+**/.env
+**/.env.*
+!.env.example
