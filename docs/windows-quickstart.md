@@ -14,6 +14,14 @@
 
 ## 수동 실행과 계정 연결
 
+### 실행 창에서 멈췄을 때
+
+이전 버전의 “Checking Docker Desktop → Install Docker Desktop → 계속하려면 아무 키”는 Docker 설치·엔진 실행·Compose 확인 중 하나가 실패했다는 뜻입니다. 아무 키는 창을 닫는 기능이었습니다. 이것만으로 정확한 원인은 확정할 수 없습니다.
+
+새 실행 파일은 압축 미해제, Docker 미설치, 엔진 미실행, Windows 컨테이너 모드, Compose 누락, 이미지 다운로드, 설정 생성, 앱 시작 실패를 한글로 구분합니다. 설치된 Docker Desktop은 자동 시작을 시도하며 기존 `.env`를 보존합니다. Docker가 없으면 공식 설치 페이지를 엽니다. 실패 시 대괄호로 표시된 단계와 바로 위 오류 문구를 확인합니다.
+
+먼저 시작 메뉴에서 Docker Desktop이 검색되는지 확인하세요. 없으면 공식 Windows 설치가 필요합니다. 이미 있다면 실행하여 엔진 준비를 기다립니다. WSL·가상화 오류가 표시되면 그 메시지를 기준으로 해결합니다. 원인 확인 없이 `.env`나 데이터 볼륨을 삭제하지 마세요.
+
 사용자의 구성: 계속 켜둘 Windows PC, 기존 YouTube/TikTok/Instagram 계정, Instagram 비즈니스 계정, NAVER 미개설. 채널 표시 이름과 소개는 [운영안](channel-plan.md)의 문구로 소유자가 변경합니다. 계정 변경이나 외부 게시를 대신 실행한 상태는 아닙니다.
 
 1. [Docker Desktop for Windows](https://docs.docker.com/desktop/setup/install/windows-install/)를 설치합니다. 공식 안내에 따라 WSL2와 Linux 컨테이너를 사용합니다. Windows/macOS에서 직접 검증한 것은 아니며, 같은 Docker 이미지는 이 Linux 클라우드에서 빌드·실행 검증했습니다.
