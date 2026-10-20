@@ -6,6 +6,7 @@ from datetime import date
 import json
 import math
 import os
+import re
 from pathlib import Path
 import shutil
 import subprocess
@@ -58,34 +59,42 @@ def _font(path: str, size: int) -> ImageFont.FreeTypeFont:
     return ImageFont.truetype(path, max(8, size))
 
 
-def _wrap(text: str, draw: ImageDraw.ImageDraw, font: ImageFont.FreeTypeFont, width: int) -> list[str]:
+def _wrap(text: str, draw: ImageDraw.ImageDraw, font: ImageFont.FreeTypeFont, width: int, *, subtitle: bool = False) -> list[str]:
     """Character wrapping also handles Korean text with no spaces."""
     lines: list[str] = []
     for paragraph in str(text).split("\n"):
+        if subtitle:
+            paragraph = paragraph.rstrip(".,。．，、 \t\r")
         if not paragraph:
             lines.append("")
             continue
         current = ""
-        for char in paragraph:
+        # Decimal points and thousands separators belong to their number, even
+        # when a subtitle wraps. Other text still wraps character by character.
+        units = re.findall(r"\d+(?:[.,．，]\d+)+|.", paragraph) if subtitle else paragraph
+        for char in units:
             if current and draw.textlength(current + char, font=font) > width:
+                if subtitle and char in ".,。．，、":
+                    continue
                 lines.append(current.rstrip())
                 current = char.lstrip()
             else:
                 current += char
         if current:
             lines.append(current.rstrip())
-    return lines
+    return [line.rstrip(".,。．，、 \t\r") for line in lines] if subtitle else lines
 
 
-def _text_block(draw: ImageDraw.ImageDraw, text: str, xy: tuple[int, int], *, font_path: str, size: int, min_size: int, width: int, height: int, fill: str, spacing: float = 1.38) -> int:
+def _text_block(draw: ImageDraw.ImageDraw, text: str, xy: tuple[int, int], *, font_path: str, size: int, min_size: int, width: int, height: int, fill: str, spacing: float = 1.38, subtitle: bool = False) -> int:
     while size >= min_size:
         font = _font(font_path, size)
-        lines = _wrap(text, draw, font, width)
+        lines = _wrap(text, draw, font, width, subtitle=subtitle)
         line_height = round(size * spacing)
-        if line_height * len(lines) <= height:
+        fits_width = all(draw.textlength(line, font=font) <= width for line in lines)
+        if line_height * len(lines) <= height and fits_width:
             break
         size -= 2
-    if line_height * len(lines) > height:
+    if line_height * len(lines) > height or not fits_width:
         # Never silently crop editorial content into a different claim.
         raise ValueError("Card text does not fit; shorten the scene text before rendering")
     x, y = xy
@@ -110,7 +119,7 @@ def _draw_card(content: dict, scene: str, index: int, count: int, *, width: int,
     draw.text((margin, top + px(170)), f"{index + 1:02d}", font=_font(font_path, px(136)), fill=LIME, anchor="lt")
     body_top = top + px(370)
     body_bottom = round(height * 0.72)
-    _text_block(draw, scene, (margin, body_top), font_path=font_path, size=px(70), min_size=px(34), width=usable, height=body_bottom - body_top, fill=PAPER)
+    _text_block(draw, scene, (margin, body_top), font_path=font_path, size=px(70), min_size=px(34), width=usable, height=body_bottom - body_top, fill=PAPER, subtitle=True)
     footer_top = round(height * 0.76)
     draw.line((margin, footer_top, width - margin, footer_top), fill="#465044", width=px(2))
     source_indexes = content.get("scene_source_indexes", [])
@@ -223,7 +232,7 @@ def _draw_subtitle(draw: ImageDraw.ImageDraw, scene: str, *, width: int, box: tu
     max_height = round(panel_height * 0.34)
     for size in range(px(52), px(32) - 1, -1):
         font = _font(font_path, size)
-        lines = _wrap(scene.strip(), draw, font, width - px(130))
+        lines = _wrap(scene.strip(), draw, font, width - px(130), subtitle=True)
         line_height = round(size * 1.35)
         if len(lines) * line_height + px(32) <= max_height and all(draw.textlength(line, font=font) <= width - px(130) for line in lines):
             break
