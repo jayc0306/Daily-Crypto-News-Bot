@@ -44,10 +44,10 @@ def main():
     if args.command == 'serve':
         if len(settings.get('DASHBOARD_PASSWORD')) < 12:
             parser.error('DASHBOARD_PASSWORD를 .env에 12자 이상으로 설정하세요. 키 값은 채팅에 보내지 마세요.')
-        import uvicorn
         from .app import create_app
+        from .server import run_server
         # Signed public media URLs should never be written to access logs.
-        uvicorn.run(create_app(settings), host=args.host, port=args.port, access_log=False)
+        run_server(create_app(settings), host=args.host, port=args.port)
         return
     service = Service(settings)
     if args.command == 'worker':

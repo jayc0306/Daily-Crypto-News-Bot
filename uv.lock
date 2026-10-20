@@ -437,7 +437,7 @@ requires-dist = [
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8,<10" },
     { name = "python-dotenv", specifier = ">=1,<2" },
     { name = "tzdata", marker = "sys_platform == 'win32'", specifier = ">=2025.2" },
-    { name = "uvicorn", specifier = ">=0.34,<1" },
+    { name = "uvicorn", specifier = ">=0.54,<1" },
 ]
 provides-extras = ["dev"]
 

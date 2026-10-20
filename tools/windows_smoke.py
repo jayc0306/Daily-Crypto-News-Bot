@@ -28,12 +28,18 @@ def main() -> None:
     from shortflow.render import _find_font
     from shortflow.settings import Settings
     from shortflow.worker import worker_lock
+    from shortflow.server import WINDOWS_LOOP
+    import asyncio
+    import uvicorn
+
+    config = uvicorn.Config(lambda scope, receive, send: None, loop=WINDOWS_LOOP)
+    assert config.get_loop_factory() is asyncio.SelectorEventLoop
 
     settings = Settings.load(root)
     assert (root / ".env").is_file() and len(settings.get("DASHBOARD_PASSWORD")) >= 12
     assert not settings.get("TELEGRAM_BOT_TOKEN"), "Use a clean checkout without account settings"
     assert Path(_find_font(settings.get("FONT_PATH") or None)).is_file()
-    print("Native Windows tools, generated local settings, and Korean font are ready.")
+    print("Native Windows tools, Korean font, and Selector event loop are ready.")
 
     lock_path = root / ".local/windows-smoke.lock"
     child = ("from pathlib import Path; import sys\n"
