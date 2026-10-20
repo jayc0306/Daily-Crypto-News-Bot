@@ -1,4 +1,4 @@
-"""Desktop serving with a Windows loop and explicit IPv4 listener."""
+"""Desktop serving with a Windows loop and an explicit local listener."""
 from __future__ import annotations
 
 import errno
@@ -23,7 +23,8 @@ def run_server(app, host: str, port: int) -> None:
     server = uvicorn.Server(config)
     phase = '로컬 소켓 생성'
     try:
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as listener:
+        family = socket.AF_INET6 if ':' in host else socket.AF_INET
+        with socket.socket(family, socket.SOCK_STREAM) as listener:
             phase = '로컬 주소 연결'
             listener.bind((host, port))
             phase = '로컬 접속 대기'

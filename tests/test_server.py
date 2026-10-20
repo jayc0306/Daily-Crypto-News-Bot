@@ -8,7 +8,8 @@ import uvicorn
 from shortflow import server
 
 
-def test_windows_listener_is_ipv4_nonblocking_and_uses_selector(monkeypatch):
+@pytest.mark.parametrize('host,family', [('127.0.0.1', socket.AF_INET), ('::1', socket.AF_INET6)])
+def test_windows_listener_is_nonblocking_and_uses_selector(monkeypatch, host, family):
     observed = {}
 
     class InspectServer:
@@ -26,10 +27,10 @@ def test_windows_listener_is_ipv4_nonblocking_and_uses_selector(monkeypatch):
 
     monkeypatch.setattr(server.uvicorn, 'Server', InspectServer)
     monkeypatch.setattr(server.sys, 'platform', 'win32')
-    server.run_server(lambda scope, receive, send: None, '127.0.0.1', 0)
+    server.run_server(lambda scope, receive, send: None, host, 0)
     assert observed['factory'] is asyncio.SelectorEventLoop
-    assert observed['family'] == socket.AF_INET
-    assert observed['address'][0] == '127.0.0.1' and observed['address'][1] > 0
+    assert observed['family'] == family
+    assert observed['address'][0] == host and observed['address'][1] > 0
     assert observed['timeout'] == 0
     assert observed['socket'].fileno() == -1
 
