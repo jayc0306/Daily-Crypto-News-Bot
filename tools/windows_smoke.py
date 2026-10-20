@@ -94,7 +94,8 @@ def main() -> None:
             assert client.get("/api/overview", auth=None).status_code == 401
             overview = client.get("/api/overview")
             overview.raise_for_status()
-            assert any(item["id"] == draft["id"] for item in overview.json()["drafts"])
+            # CLI output is a summary; the API carries the current revision.
+            draft = next(item for item in overview.json()['drafts'] if item['id'] == draft['id'])
             media = client.get(f"/media/{draft['id']}/video")
             media.raise_for_status()
             assert media.headers["content-type"].startswith("video/mp4")
