@@ -40,6 +40,14 @@ class Service:
                 content.setdefault('review_notes', []).extend(errors)
             else:
                 content = demo_content(day, self.settings.brand)
+            source_title = content['sources'][0]['title'] if content.get('sources') else ''
+            # Keep automatic headlines readable; the full claim stays in subtitles
+            # and source citations, and the reviewer can write a shorter headline.
+            fits_headline = len(source_title) <= 28 and all(len(word) <= 10 for word in source_title.split())
+            content.setdefault('headline', '매달 빠져나가는 돈\n그냥 두고 있나요?' if demo else
+                               (source_title if source_title and fits_headline else
+                                '오늘의 생활비 소식\n원문에서 조건 확인'))
+            content.setdefault('accent_color', 'yellow')
             draft_id = uuid4().hex
             output = self.settings.data_dir / 'videos' / draft_id
             from .ai import enrich_content
@@ -53,12 +61,14 @@ class Service:
             self.store.set_meta('last_error', '')
             return draft
 
-    def edit(self, draft_id, changes):
+    def edit(self, draft_id, changes, expected_revision=None):
         from .render import render_video
         with self.lock:
             draft = self.store.get(draft_id)
             if not draft or draft['status'] != 'pending_review':
                 raise ValueError('검수 대기 중인 영상만 수정할 수 있습니다.')
+            if expected_revision is not None and draft['revision'] != expected_revision:
+                raise ValueError('수정 전 화면입니다. 새로고침한 뒤 다시 시도하세요.')
             content = {**draft['content'], **changes}
             if 'tiktok_options' not in changes:
                 content.pop('tiktok_options', None)
@@ -77,7 +87,7 @@ class Service:
                 content['audio_path'] = str(audio)
                 content.setdefault('review_notes', []).append('AI 생성 음성이 포함되어 있습니다. 발음·숫자·호흡을 들어보고 검수하세요.')
         except ValueError:
-            content.setdefault('review_notes', []).append('음성 생성에 실패했습니다. 현재 영상은 무음 카드형입니다.')
+            content.setdefault('review_notes', []).append('음성 생성에 실패했습니다. 현재 영상의 소리는 무음입니다.')
 
     def review(self, action, draft_id, revision=None):
         if action not in ('approve', 'reject'):

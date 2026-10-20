@@ -67,11 +67,16 @@ def main() -> None:
     assert audio["codec_name"] == "aac" and float(probe["format"]["duration"]) > 0
     print("Real 1080x1920 H.264/AAC sample rendered; Windows process locking passed.")
 
+    footage = root / 'data' / 'windows-footage.mp4'
+    subprocess.run(['ffmpeg', '-v', 'error', '-nostdin', '-y', '-f', 'lavfi', '-i',
+                    'color=c=blue:s=320x180:r=12:d=1', '-c:v', 'libx264',
+                    '-pix_fmt', 'yuv420p', str(footage)], check=True, timeout=30)
+
     server = subprocess.Popen([sys.executable, "-m", "shortflow", "serve", "--host",
                                "127.0.0.1", "--port", "8787"],
                               stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
     try:
-        with httpx.Client(base_url="http://127.0.0.1:8787", trust_env=False, timeout=30,
+        with httpx.Client(base_url="http://127.0.0.1:8787", trust_env=False, timeout=180,
                           auth=(settings.get("DASHBOARD_USERNAME", "admin"),
                                 settings.get("DASHBOARD_PASSWORD"))) as client:
             deadline = time.monotonic() + 45
@@ -94,6 +99,20 @@ def main() -> None:
             media.raise_for_status()
             assert media.headers["content-type"].startswith("video/mp4")
             assert media.content[4:8] == b"ftyp"
+            attached = client.post(f"/api/drafts/{draft['id']}/media",
+                                   params={'revision': draft['revision'], 'filename': 'local-footage.mp4'},
+                                   headers={'X-Shortflow-Action': 'review',
+                                            'Content-Type': 'application/octet-stream'},
+                                   content=footage.read_bytes())
+            attached.raise_for_status()
+            updated = attached.json()
+            assert updated['revision'] == draft['revision'] + 1
+            assert updated['content']['media_name'] == 'local-footage.mp4'
+            assert updated['content']['is_demo']
+            revised_video = client.get(f"/media/{draft['id']}/video")
+            revised_video.raise_for_status()
+            assert revised_video.content[4:8] == b'ftyp'
+            print('Uploaded local footage and rendered the revised headline/subtitle video on Windows.')
     finally:
         server.terminate()
         try:

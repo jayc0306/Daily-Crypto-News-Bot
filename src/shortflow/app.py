@@ -2,15 +2,19 @@ from __future__ import annotations
 
 import hmac
 import secrets
+import subprocess
 import threading
 from contextlib import asynccontextmanager
 from pathlib import Path
+from pathlib import PureWindowsPath
 from typing import Annotated, Literal
+from uuid import uuid4
 
-from fastapi import BackgroundTasks, Depends, FastAPI, Header, HTTPException
+from fastapi import BackgroundTasks, Depends, FastAPI, Header, HTTPException, Query, Request
 from fastapi.responses import FileResponse
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from pydantic import BaseModel, ConfigDict, Field
+from starlette.concurrency import run_in_threadpool
 
 from .service import Service
 from .settings import Settings
@@ -36,6 +40,8 @@ class EditRequest(BaseModel):
     title: str = Field(min_length=1, max_length=100)
     caption: str = Field(min_length=1, max_length=2000)
     scenes: list[str] = Field(min_length=3, max_length=6)
+    headline: str | None = Field(default=None, max_length=80)
+    accent_color: Literal['yellow', 'green', 'purple', 'red'] = 'yellow'
     tiktok_options: TikTokOptions | None = None
 
 
@@ -143,8 +149,59 @@ def create_app(settings: Settings | None = None, *, start_worker=True):
     def edit(draft_id: str, request: EditRequest):
         if any(not text.strip() or len(text) > 250 for text in request.scenes):
             raise HTTPException(422, '장면별 자막은 1~250자로 입력하세요.')
+        if request.headline is not None and len(request.headline.splitlines()) > 2:
+            raise HTTPException(422, '화면 제목은 두 줄 이내로 입력하세요.')
         try:
             return service.edit(draft_id, request.model_dump(exclude_none=True))
+        except ValueError as exc:
+            raise HTTPException(409, str(exc)) from None
+
+    @app.post('/api/drafts/{draft_id}/media', dependencies=writes)
+    async def attach_media(draft_id: str, request: Request, revision: int = Query(ge=1),
+                           filename: str = Query(min_length=1, max_length=255)):
+        from .media import MAX_UPLOAD_BYTES, MEDIA_SUFFIXES, inspect_footage
+        draft = get_draft(draft_id)
+        if draft['status'] != 'pending_review' or draft['revision'] != revision:
+            raise HTTPException(409, '검수 대기 중인 최신 화면에서 자료 영상을 첨부하세요.')
+        name = PureWindowsPath(filename).name
+        suffix = Path(name).suffix.lower()
+        if suffix not in MEDIA_SUFFIXES:
+            raise HTTPException(422, 'MP4·MOV·WebM·MKV 파일을 선택하세요.')
+        size_header = request.headers.get('content-length')
+        if size_header and (not size_header.isdigit() or int(size_header) > MAX_UPLOAD_BYTES):
+            raise HTTPException(413, '자료 영상은 100MB까지 첨부할 수 있습니다.')
+        folder = settings.data_dir / 'uploads'
+        folder.mkdir(parents=True, exist_ok=True)
+        path = folder / f'{uuid4().hex}{suffix}'
+        keep = False
+        try:
+            size = 0
+            with path.open('xb') as output:
+                async for chunk in request.stream():
+                    size += len(chunk)
+                    if size > MAX_UPLOAD_BYTES:
+                        raise HTTPException(413, '자료 영상은 100MB까지 첨부할 수 있습니다.')
+                    output.write(chunk)
+            try:
+                await run_in_threadpool(inspect_footage, path)
+            except (ValueError, subprocess.TimeoutExpired) as exc:
+                raise HTTPException(422, str(exc) if isinstance(exc, ValueError) else '영상 확인 시간이 초과되었습니다. 다른 파일을 선택하세요.') from None
+            try:
+                updated = await run_in_threadpool(service.edit, draft_id,
+                    {'media_path': str(path), 'media_name': name}, revision)
+            except ValueError as exc:
+                raise HTTPException(409, str(exc)) from None
+            keep = True
+            return updated
+        finally:
+            if not keep:
+                path.unlink(missing_ok=True)
+
+    @app.delete('/api/drafts/{draft_id}/media', dependencies=writes)
+    def remove_media(draft_id: str, revision: int = Query(ge=1)):
+        get_draft(draft_id)
+        try:
+            return service.edit(draft_id, {'media_path': None, 'media_name': None}, revision)
         except ValueError as exc:
             raise HTTPException(409, str(exc)) from None
 
